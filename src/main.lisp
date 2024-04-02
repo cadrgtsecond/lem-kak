@@ -3,6 +3,10 @@
   (:export #:kak-mode))
 (in-package #:lem-kak)
 
+(defmacro docursors (var &body body)
+  `(dolist (,var (buffer-cursors (current-buffer)))
+     ,@body))
+
 ;;; Normal mode
 (define-global-mode normal-mode ()
   (:name "Kakoune normal mode"
@@ -17,8 +21,8 @@
   ("k" 'kak-previous-line)
   ("J" 'kak-next-line-ext)
   ("K" 'kak-previous-line-ext)
-  ("d" 'delete-previous-char)
-  ("c" 'change-previous-char)
+  ("d" 'kak-delete-selection)
+  ("c" 'kak-change-selection)
   (":" 'kak-execute-command))
  
 (defun extend-cursor (cur extend-p)
@@ -29,12 +33,12 @@
       (setf (mark-active-p (cursor-mark cur)) nil)))
 
 (defun offset-all-cursors (n extend-p)
-  (dolist (cur (buffer-cursors (current-buffer)))
+  (docursors cur
     (extend-cursor cur extend-p)
     (character-offset cur n)))
 
 (defun next-line-all-cursors (n extend-p)
-  (dolist (cur (buffer-cursors (current-buffer)))
+  (docursors cur
     (extend-cursor cur extend-p)
     (next-line n)))
 
@@ -55,6 +59,15 @@
   (next-line-all-cursors n t))
 (define-command kak-previous-line-ext (&optional (n 1)) ("p")
   (next-line-all-cursors (- n) t))
+
+(define-command kak-delete-selection () ()
+  (docursors cur
+    (let ((start (cursor-region-beginning cur))
+          (end (cursor-region-end cur)))
+      (delete-character start (1+ (count-characters start end))))))
+(define-command kak-change-selection () ()
+  (kak-delete-selection)
+  (insert-mode))
 
 ;; Other modes
 (define-key *normal-mode-keymap* "i" 'insert-mode)
