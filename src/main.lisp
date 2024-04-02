@@ -23,6 +23,9 @@
   ("K" 'kak-previous-line-ext)
   ("d" 'kak-delete-selection)
   ("c" 'kak-change-selection)
+  ("u" 'undo)
+  ("U" 'redo)
+  ("z z" 'save)
   (":" 'kak-execute-command))
  
 (defun extend-cursor (cur extend-p)
