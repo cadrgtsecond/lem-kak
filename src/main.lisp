@@ -3,97 +3,122 @@
   (:export #:kak-mode))
 (in-package #:lem-kak)
 
-(defmacro docursors (var &body body)
-  `(dolist (,var (buffer-cursors (current-buffer)))
-     ,@body))
+(defun set-anchor ()
+  "Sets the anchor to the current-point"
+  (set-cursor-mark (current-point) (current-point)))
 
 ;;; Normal mode
-(define-global-mode normal-mode ()
+(define-global-mode kak-normal-mode ()
   (:name "Kakoune normal mode"
-   :keymap *normal-mode-keymap*))
-     
-(define-keys *normal-mode-keymap*
-  ("h" 'kak-backward-char)
-  ("l" 'kak-forward-char)
-  ("H" 'kak-backward-char-ext)
-  ("L" 'kak-forward-char-ext)
-  ("j" 'kak-next-line)
-  ("k" 'kak-previous-line)
-  ("J" 'kak-next-line-ext)
-  ("K" 'kak-previous-line-ext)
-  ("d" 'kak-delete-selection)
-  ("c" 'kak-change-selection)
-  ("u" 'undo)
-  ("U" 'redo)
-  ("z z" 'save)
-  (":" 'kak-execute-command))
- 
-(defun extend-cursor (cur extend-p)
-  (if extend-p
-      (unless (mark-active-p (cursor-mark cur))
-        (set-cursor-mark cur cur))
-      ; When not extending, we should cancel the selection
-      (setf (mark-active-p (cursor-mark cur)) nil)))
+   :keymap *normal-mode-keymap*
+   :enable-hook #'set-anchor))
 
-(defun offset-all-cursors (n extend-p)
-  (docursors cur
-    (extend-cursor cur extend-p)
-    (character-offset cur n)))
-
-(defun next-line-all-cursors (n extend-p)
-  (docursors cur
-    (extend-cursor cur extend-p)
-    (next-line n)))
-
-(define-command kak-forward-char (&optional (n 1)) ("p")
-  (offset-all-cursors n nil))
-(define-command kak-backward-char (&optional (n 1)) ("p")
-  (offset-all-cursors (- n) nil))
-(define-command kak-forward-char-ext (&optional (n 1)) ("p")
-  (offset-all-cursors n t))
-(define-command kak-backward-char-ext (&optional (n 1)) ("p")
-  (offset-all-cursors (- n) t))
-
-(define-command kak-next-line (&optional (n 1)) ("p")
-  (next-line-all-cursors n nil))
-(define-command kak-previous-line (&optional (n 1)) ("p")
-  (next-line-all-cursors (- n) nil))
-(define-command kak-next-line-ext (&optional (n 1)) ("p")
-  (next-line-all-cursors n t))
-(define-command kak-previous-line-ext (&optional (n 1)) ("p")
-  (next-line-all-cursors (- n) t))
-
-(define-command kak-delete-selection () ()
-  (docursors cur
-    (let ((start (cursor-region-beginning cur))
-          (end (cursor-region-end cur)))
-      (delete-character start (1+ (count-characters start end))))))
-(define-command kak-change-selection () ()
-  (kak-delete-selection)
-  (insert-mode))
-
-;; Other modes
-(define-key *normal-mode-keymap* "i" 'insert-mode)
-
-;;; Insert mode
-(define-global-mode insert-mode ()
+(define-global-mode kak-insert-mode (lem-core::emacs-mode)
   (:name "Kakoune insert mode"
    :keymap *insert-mode-keymap*))
-(setf (keymap-undef-hook *insert-mode-keymap*) 'self-insert)
+
+(define-keys *normal-mode-keymap*
+  (":" 'kak-execute-command)
+  
+  ;; Change modes
+  ("i" 'kak-insert-mode)
+  
+  ;;; HJKL
+  ("h" 'backward-char-clear)
+  ("l" 'forward-char-clear)
+  ("j" 'next-line-clear)
+  ("k" 'previous-line-clear)
+  ("H" 'backward-char-ext)
+  ("J" 'next-line-ext)
+  ("K" 'previous-line-ext)
+  ("L" 'forward-char-ext)
+  
+  ("w" 'next-word-start)
+  ("W" 'next-word-start-ext)
+  ("e" 'next-word-end)
+  ("E" 'next-word-end-ext)
+  ("b" 'previous-word-start)
+  ("B" 'previous-word-start)
+
+
+  ("d" 'delete-selection)
+  ("c" 'change-selection)
+  ("u" 'undo)
+  ("U" 'redo)
+  ("Escape" 'escape))
 
 (define-keys *insert-mode-keymap*
-  ("Return" 'newline)
-  ("Left" 'backward-char)
-  ("Right" 'forward-char)
-  ("Backspace" 'delete-previous-char)
-  ("Delete" 'delete-next-char))
-
-(define-key *insert-mode-keymap* "Escape" 'kak-escape)
-
-;;; Commands
+  ("Escape" 'kak-normal-mode))
+ 
 (define-command kak-execute-command (arg) ("P")
-  (insert-mode)
+  (kak-insert-mode)
   (execute-command arg))
-(define-command kak-escape () ()
-  (normal-mode)
-  (escape))
+
+;;;
+;;;  HJKL
+;;;
+(define-command (forward-char-clear (:advice-classes movable-advice)) (n) ("p")
+  (forward-char n)
+  (set-anchor))
+(define-command (forward-char-ext (:advice-classes movable-advice)) (n) ("p")
+  (forward-char n))
+(define-command (backward-char-clear (:advice-classes movable-advice)) (n) ("p")
+  (backward-char n)
+  (set-anchor))
+(define-command (backward-char-ext (:advice-classes movable-advice)) (n) ("p")
+  (backward-char n))
+(define-command (next-line-clear (:advice-classes movable-advice)) (n) ("p")
+  (next-line n)
+  (set-anchor))
+(define-command (next-line-ext (:advice-classes movable-advice)) (n) ("p")
+  (next-line n))
+(define-command (previous-line-clear (:advice-classes movable-advice)) (n) ("p")
+  (previous-line n)
+  (set-anchor))
+(define-command (previous-line-ext (:advice-classes movable-advice)) (n) ("p")
+  (previous-line n))
+
+;;;
+;;; word and WORD commands
+;;;
+(defun move-till-boundary (boundary-p step extend-p)
+  "Moves the current point till the specified boundary has been reached.
+BOUNDARY-P is a function that accepts two characters and determines if they form a boundary"
+  ;; Whenever we are already at a boundary, we should skip one character forward before doing the
+  ;; move. This way, we can chain actions together smoothly.
+  (when (funcall boundary-p (character-at (current-point)) (character-at (current-point) step))
+    (character-offset (current-point) step))
+  (unless extend-p
+    (set-anchor))
+  (loop for char1 = (character-at (current-point))
+        for char2 = (character-at (current-point) step)
+        while (and char1 char2)
+        until (funcall boundary-p char1 char2)
+        do (character-offset (current-point) step)))
+
+
+(defun word-character-p (char)
+  (or (alphanumericp char) (member char '(#\_ #\-))))
+
+;; TODO: Handle special(non-word-character and non-blank, e.g $%*) characters
+(defun word-start-p (char1 char2)
+  (and (not (word-character-p char1)) (word-character-p char2)))
+
+(defun word-end-p (char1 char2)
+  (and (word-character-p char1) (not (word-character-p char2))))
+
+;; TODO: Support n
+(define-command (next-word-start (:advice-classes movable-advice)) (n) ("p")
+  (move-till-boundary #'word-start-p 1 nil))
+(define-command (next-word-start-ext (:advice-classes movable-advice)) (n) ("p")
+  (move-till-boundary #'word-start-p 1 t))
+
+(define-command (next-word-end (:advice-classes movable-advice)) (n) ("p")
+  (move-till-boundary #'word-end-p 1 nil))
+(define-command (next-word-end-ext (:advice-classes movable-advice)) (n) ("p")
+  (move-till-boundary #'word-end-p 1 t))
+
+(define-command (previous-word-start (:advice-classes movable-advice)) (n) ("p")
+  (move-till-boundary #'word-start-p -1 nil))
+(define-command (previous-word-start-ext (:advice-classes movable-advice)) (n) ("p")
+  (move-till-boundary #'word-start-p -1 t))
