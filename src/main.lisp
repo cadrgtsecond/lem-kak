@@ -40,6 +40,7 @@
   ("b" 'previous-word-start)
   ("B" 'previous-word-start-ext)
 
+  ("x" 'select-line)
 
   ("d" 'delete-selection)
   ("c" 'change-selection)
@@ -60,7 +61,6 @@
 (defclass kakoune-advice () ())
 
 (defmethod execute :around (mode (command kakoune-advice) arg)
-  (clear-overlays (current-buffer))
   (do-each-cursors ()
     (call-next-method)))
 
@@ -68,21 +68,22 @@
 ;; This is the magic trick that allows us to have block cursors
 ;;
 
+;; TODO: Once lem-project/lem#1817 is merged, make use of MAKE-REGION-OVERLAYS-USING-GLOBAL-MODE
+
 ;; This function is supposed to error if there is no region
 ;;
 ;; That is why we use NIL in place of say, T. Actually any non-erroring expression will do
-;; TODO: Fix the visual bug that occurs when the cursor is behind the anchor
 (defmethod check-marked-using-global-mode ((global-mode kak-normal-mode) buffer)
   (declare (ignore buffer global-mode))
   nil)
 
 (defmethod region-beginning-using-global-mode ((global-mode kak-normal-mode)
-                                                 &optional (buffer (current-buffer)))
+                                               &optional (buffer (current-buffer)))
   (declare (ignore buffer))
   (point-min (current-point) (mark-point (cursor-mark (current-point)))))
 
 (defmethod region-end-using-global-mode ((global-mode kak-normal-mode)
-                                               &optional (buffer (current-buffer)))
+                                         &optional (buffer (current-buffer)))
   (declare (ignore buffer))
   (let ((result (copy-point (point-max (current-point) (mark-point (cursor-mark (current-point)))))))
     (character-offset result 1)
@@ -122,7 +123,7 @@
 ;;;
 ;;; word and WORD commands
 ;;;
-(defun move-till-word (boundary-p step)
+(defun move-till-boundary (boundary-p step)
   (loop for char1 = (character-at (current-point))
         for char2 = (character-at (current-point) step)
         while (and char1 char2)
@@ -153,33 +154,48 @@
 (define-command (next-word-start (:advice-classes kakoune-advice)) (n) ("p")
   (snap-to-word (current-point) 1)
   (set-anchor)
-  (move-till-word #'word-start-p 1))
+  (move-till-boundary #'word-start-p 1))
 
 (define-command (next-word-start-ext (:advice-classes kakoune-advice)) (n) ("p")
   (snap-to-word (current-point) 1)
-  (move-till-word #'word-start-p 1))
+  (move-till-boundary #'word-start-p 1))
 
 (define-command (next-word-end (:advice-classes kakoune-advice)) (n) ("p")
   (snap-to-word (current-point) 1)
   (set-anchor)
-  (move-till-word #'word-end-p 1))
+  (move-till-boundary #'word-end-p 1))
 
 (define-command (next-word-end-ext (:advice-classes kakoune-advice)) (n) ("p")
   (snap-to-word (current-point) 1)
-  (move-till-word #'word-end-p 1))
+  (move-till-boundary #'word-end-p 1))
 
 (define-command (previous-word-start (:advice-classes kakoune-advice)) (n) ("p")
   (snap-to-word (current-point) -1)
   (set-anchor)
-  (move-till-word #'word-start-p -1))
+  (move-till-boundary #'word-start-p -1))
 
 (define-command (previous-word-start-ext (:advice-classes kakoune-advice)) (n) ("p")
   (snap-to-word (current-point) -1)
-  (move-till-word #'word-start-p -1))
+  (move-till-boundary #'word-start-p -1))
 
 ;; Actions
-(define-command (delete-selection (:advice-classes editable-advice)) (start end) ("r")
+(define-command (delete-selection (:advice-classes kakoune-advice)) (start end) ("r")
   (delete-between-points start end))
-(define-command (change-selection (:advice-classes editable-advice)) (start end) ("r")
+(define-command (change-selection (:advice-classes kakoune-advice)) (start end) ("r")
   (delete-between-points start end)
   (kak-insert-mode))
+
+(defun line-boundary-exclusive (char1 char2)
+  (declare (ignore char1))
+  (eql char2 #\Newline))
+
+(defun line-boundary-inclusive (char1 char2)
+  (declare (ignore char2))
+  (eql char1 #\Newline))
+
+
+;; Selecting full lines
+(define-command (select-line (:advice-classes kakoune-advice)) () ()
+  (move-till-boundary #'line-boundary-exclusive -1)
+  (set-anchor)
+  (move-till-boundary #'line-boundary-inclusive 1))
