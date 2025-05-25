@@ -38,7 +38,7 @@
   ("e" 'next-word-end)
   ("E" 'next-word-end-ext)
   ("b" 'previous-word-start)
-  ("B" 'previous-word-start)
+  ("B" 'previous-word-start-ext)
 
 
   ("d" 'delete-selection)
@@ -52,44 +52,77 @@
  
 (define-command kak-execute-command (arg) ("P")
   (kak-insert-mode)
-  (execute-command arg))
+  (unwind-protect
+    (execute-command arg)
+    (when (typep (current-global-mode) 'kak-insert-mode)
+      (kak-normal-mode))))
+
+(defclass kakoune-advice () ())
+
+(defmethod execute :around (mode (command kakoune-advice) arg)
+  (clear-overlays (current-buffer))
+  (do-each-cursors ()
+    (call-next-method)))
+
+;;
+;; This is the magic trick that allows us to have block cursors
+;;
+
+;; This function is supposed to error if there is no region
+;;
+;; That is why we use NIL in place of say, T. Actually any non-erroring expression will do
+;; TODO: Fix the visual bug that occurs when the cursor is behind the anchor
+(defmethod check-marked-using-global-mode ((global-mode kak-normal-mode) buffer)
+  (declare (ignore buffer global-mode))
+  nil)
+
+(defmethod region-beginning-using-global-mode ((global-mode kak-normal-mode)
+                                                 &optional (buffer (current-buffer)))
+  (declare (ignore buffer))
+  (point-min (current-point) (mark-point (cursor-mark (current-point)))))
+
+(defmethod region-end-using-global-mode ((global-mode kak-normal-mode)
+                                               &optional (buffer (current-buffer)))
+  (declare (ignore buffer))
+  (let ((result (copy-point (point-max (current-point) (mark-point (cursor-mark (current-point)))))))
+    (character-offset result 1)
+    result))
+
 
 ;;;
 ;;;  HJKL
 ;;;
-(define-command (forward-char-clear (:advice-classes movable-advice)) (n) ("p")
+(define-command (forward-char-clear (:advice-classes kakoune-advice)) (n) ("p")
   (forward-char n)
   (set-anchor))
-(define-command (forward-char-ext (:advice-classes movable-advice)) (n) ("p")
+(define-command (forward-char-ext (:advice-classes kakoune-advice)) (n) ("p")
   (forward-char n))
-(define-command (backward-char-clear (:advice-classes movable-advice)) (n) ("p")
+(define-command (backward-char-clear (:advice-classes kakoune-advice)) (n) ("p")
   (backward-char n)
   (set-anchor))
-(define-command (backward-char-ext (:advice-classes movable-advice)) (n) ("p")
+(define-command (backward-char-ext (:advice-classes kakoune-advice)) (n) ("p")
   (backward-char n))
-(define-command (next-line-clear (:advice-classes movable-advice)) (n) ("p")
+(define-command (next-line-clear (:advice-classes kakoune-advice)) (n) ("p")
   (next-line n)
   (set-anchor))
-(define-command (next-line-ext (:advice-classes movable-advice)) (n) ("p")
+(define-command (next-line-ext (:advice-classes kakoune-advice)) (n) ("p")
   (next-line n))
-(define-command (previous-line-clear (:advice-classes movable-advice)) (n) ("p")
+(define-command (previous-line-clear (:advice-classes kakoune-advice)) (n) ("p")
   (previous-line n)
   (set-anchor))
-(define-command (previous-line-ext (:advice-classes movable-advice)) (n) ("p")
+(define-command (previous-line-ext (:advice-classes kakoune-advice)) (n) ("p")
   (previous-line n))
+
+(defun matches-boundary (boundary-p point step)
+  (alexandria:when-let
+      ((char1 (character-at point))
+       (char2 (character-at point step)))
+    (funcall boundary-p char1 char2)))
 
 ;;;
 ;;; word and WORD commands
 ;;;
-(defun move-till-boundary (boundary-p step extend-p)
-  "Moves the current point till the specified boundary has been reached.
-BOUNDARY-P is a function that accepts two characters and determines if they form a boundary"
-  ;; Whenever we are already at a boundary, we should skip one character forward before doing the
-  ;; move. This way, we can chain actions together smoothly.
-  (when (funcall boundary-p (character-at (current-point)) (character-at (current-point) step))
-    (character-offset (current-point) step))
-  (unless extend-p
-    (set-anchor))
+(defun move-till-word (boundary-p step)
   (loop for char1 = (character-at (current-point))
         for char2 = (character-at (current-point) step)
         while (and char1 char2)
@@ -107,18 +140,46 @@ BOUNDARY-P is a function that accepts two characters and determines if they form
 (defun word-end-p (char1 char2)
   (and (word-character-p char1) (not (word-character-p char2))))
 
+(defun test ()
+  (repeatn 10 (print "Hello")))
+
+;; Whenever we are just one character off from a word, we should snap to it
+(defun snap-to-word (point step)
+  (when (matches-boundary (alexandria:disjoin #'word-start-p #'word-end-p) point step)
+    (character-offset (current-point) step)))
+
 ;; TODO: Support n
-(define-command (next-word-start (:advice-classes movable-advice)) (n) ("p")
-  (move-till-boundary #'word-start-p 1 nil))
-(define-command (next-word-start-ext (:advice-classes movable-advice)) (n) ("p")
-  (move-till-boundary #'word-start-p 1 t))
+;; TODO: Support strict words
+(define-command (next-word-start (:advice-classes kakoune-advice)) (n) ("p")
+  (snap-to-word (current-point) 1)
+  (set-anchor)
+  (move-till-word #'word-start-p 1))
 
-(define-command (next-word-end (:advice-classes movable-advice)) (n) ("p")
-  (move-till-boundary #'word-end-p 1 nil))
-(define-command (next-word-end-ext (:advice-classes movable-advice)) (n) ("p")
-  (move-till-boundary #'word-end-p 1 t))
+(define-command (next-word-start-ext (:advice-classes kakoune-advice)) (n) ("p")
+  (snap-to-word (current-point) 1)
+  (move-till-word #'word-start-p 1))
 
-(define-command (previous-word-start (:advice-classes movable-advice)) (n) ("p")
-  (move-till-boundary #'word-start-p -1 nil))
-(define-command (previous-word-start-ext (:advice-classes movable-advice)) (n) ("p")
-  (move-till-boundary #'word-start-p -1 t))
+(define-command (next-word-end (:advice-classes kakoune-advice)) (n) ("p")
+  (snap-to-word (current-point) 1)
+  (set-anchor)
+  (move-till-word #'word-end-p 1))
+
+(define-command (next-word-end-ext (:advice-classes kakoune-advice)) (n) ("p")
+  (snap-to-word (current-point) 1)
+  (move-till-word #'word-end-p 1))
+
+(define-command (previous-word-start (:advice-classes kakoune-advice)) (n) ("p")
+  (snap-to-word (current-point) -1)
+  (set-anchor)
+  (move-till-word #'word-start-p -1))
+
+(define-command (previous-word-start-ext (:advice-classes kakoune-advice)) (n) ("p")
+  (snap-to-word (current-point) -1)
+  (move-till-word #'word-start-p -1))
+
+;; Actions
+(define-command (delete-selection (:advice-classes editable-advice)) (start end) ("r")
+  (delete-between-points start end))
+(define-command (change-selection (:advice-classes editable-advice)) (start end) ("r")
+  (delete-between-points start end)
+  (kak-insert-mode))
