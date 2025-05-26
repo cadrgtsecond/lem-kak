@@ -45,6 +45,16 @@
   ("b" 'previous-word-start)
   ("B" 'previous-word-start-ext)
 
+  ("f" 'move-forward-till-character)
+  ("t" 'move-forward-upto-character)
+  ("F" 'move-forward-till-character-ext)
+  ("T" 'move-forward-upto-character-ext)
+
+  ("M-f" 'move-backward-till-character)
+  ("M-t" 'move-backward-upto-character)
+  ("M-F" 'move-backward-till-character-ext)
+  ("M-T" 'move-backward-upto-character-ext)
+
   ("x" 'select-line)
 
   ("o" 'open-line-below-and-insert)
@@ -238,4 +248,46 @@
 
 (define-command (move-to-line-end-ext (:advice-clasess kakoune-advice)) () ()
   (line-end (current-point))
+  (character-offset (current-point) -1))
+
+;;; ftFT <a-f><a-t><a-F><a-T>
+
+(defun move-upto-character (step char)
+  (loop for curr = (character-at (current-point) step)
+        until (or (null curr) (eql curr char))
+        do (character-offset (current-point) step)))
+(defun ask-character ()
+  (let ((key (read-key)))
+    (if (abort-key-p key)
+        (error 'editor-abort)
+        (key-to-char key))))
+
+;; TODO: Support n
+(define-command (move-forward-upto-character (:advice-classes kakoune-advice)) () ()
+  (set-anchor)
+  (move-upto-character 1 (ask-character)))
+
+(define-command (move-forward-till-character (:advice-classes kakoune-advice)) () ()
+  (move-forward-upto-character)
+  (character-offset (current-point) 1))
+
+(define-command (move-forward-upto-character-ext (:advice-classes kakoune-advice)) () ()
+  (move-upto-character 1 (ask-character)))
+
+(define-command (move-forward-till-character-ext (:advice-classes kakoune-advice)) () ()
+  (move-forward-upto-character-ext)
+  (character-offset (current-point) 1))
+
+(define-command (move-backward-upto-character (:advice-classes kakoune-advice)) () ()
+  (set-anchor)
+  (move-upto-character -1 (ask-character)))
+
+(define-command (move-backward-till-character (:advice-classes kakoune-advice)) () ()
+  (move-forward-upto-character)
+  (character-offset (current-point) -1))
+
+(define-command (move-backward-upto-character-ext (:advice-classes kakoune-advice)) () ()
+  (move-upto-character -1 (ask-character)))
+(define-command (move-backward-till-character-ext (:advice-classes kakoune-advice)) () ()
+  (move-backward-upto-character-ext)
   (character-offset (current-point) -1))
