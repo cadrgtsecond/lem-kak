@@ -35,8 +35,8 @@ Currently, `kak-insert-mode` is a glorified alias to `emacs-mode`. This will soo
 - [x] **x**
 - [ ] **<a-x>**
 - [ ] **%**, **<percent>**
-- [ ] **<a-h>**
-- [ ] **<a-l>**
+- [x] **<a-h>**
+- [x] **<a-l>**
 - [ ] **<pageup>, <c-b>**
 - [ ] **<pagedown>, <c-f>**
 - [ ] **<c-u>**

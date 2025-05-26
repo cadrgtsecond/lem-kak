@@ -32,6 +32,11 @@
   ("J" 'next-line-ext)
   ("K" 'previous-line-ext)
   ("L" 'forward-char-ext)
+  ("M-h" 'move-to-line-start)
+  ("M-l" 'move-to-line-end)
+  ;; These are undocumented
+  ("M-H" 'move-to-line-start-ext)
+  ("M-L" 'move-to-line-end-ext)
   
   ("w" 'next-word-start)
   ("W" 'next-word-start-ext)
@@ -218,3 +223,19 @@
   (line-offset (current-point) -1)
   (indent-line (current-point))
   (kak-insert-mode))
+
+(define-command (move-to-line-start (:advice-clasess kakoune-advice)) () ()
+  (set-anchor)
+  (line-start (current-point)))
+
+(define-command (move-to-line-end (:advice-clasess kakoune-advice)) () ()
+  (set-anchor)
+  (line-end (current-point))
+  (character-offset (current-point) -1))
+
+(define-command (move-to-line-start-ext (:advice-clasess kakoune-advice)) () ()
+  (line-start (current-point)))
+
+(define-command (move-to-line-end-ext (:advice-clasess kakoune-advice)) () ()
+  (line-end (current-point))
+  (character-offset (current-point) -1))
