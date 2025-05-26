@@ -4,16 +4,16 @@ This document lists the keybinds supported by kakoune and tries to document what
 
 ## Insert mode
 Currently, `kak-insert-mode` is a glorified alias to `emacs-mode`. This will soon change
-- [x] **<esc>**
-- [ ] **<backspace>**
-- [ ] **<del>**
-- [ ] **<left>**, **<right>**, **<up>**, **<down>**
-- [ ] **<home>**
-- [ ] **<end>**
-- [ ] **<c-r>**
-- [ ] **<c-v>**
-- [ ] **<c-u>**
-- [ ] **<a-;>**, **<a-semicolon>**
+- [x] **&lt;esc&gt;**
+- [ ] **&lt;backspace&gt;**
+- [ ] **&lt;del&gt;**
+- [ ] **&lt;left&gt;**, **&lt;right&gt;**, **&lt;up&gt;**, **&lt;down&gt;**
+- [ ] **&lt;home&gt;**
+- [ ] **&lt;end&gt;**
+- [ ] **&lt;c-r&gt;**
+- [ ] **&lt;c-v&gt;**
+- [ ] **&lt;c-u&gt;**
+- [ ] **&lt;a-;&gt;**, **&lt;a-semicolon&gt;**
 
 ## Movement
 - [x] **h**
@@ -23,27 +23,27 @@ Currently, `kak-insert-mode` is a glorified alias to `emacs-mode`. This will soo
 - [x] **w**
 - [x] **b**
 - [x] **e**
-- [ ] **<a-[wbe]>**
+- [ ] **&lt;a-[wbe]&gt;**
 - [ ] **f**
 - [ ] **t**
-- [ ] **<a-[ft]>**
-- [ ] **<a-.>**
+- [ ] **&lt;a-[ft]&gt;**
+- [ ] **&lt;a-.&gt;**
 - [ ] **m**
 - [ ] **M**
-- [ ] **<a-m>**
-- [ ] **<a-M>**
+- [ ] **&lt;a-m&gt;**
+- [ ] **&lt;a-M&gt;**
 - [x] **x**
-- [ ] **<a-x>**
-- [ ] **%**, **<percent>**
-- [x] **<a-h>**
-- [x] **<a-l>**
-- [ ] **<pageup>, <c-b>**
-- [ ] **<pagedown>, <c-f>**
-- [ ] **<c-u>**
-- [ ] **<c-d>**
-- [ ] **;**, **<semicolon>**
-- [ ] **<a-;>**, **<a-semicolon>**
-- [ ] **<a-:>**
+- [ ] **&lt;a-x&gt;**
+- [ ] **%**, **&lt;percent&gt;**
+- [x] **&lt;a-h&gt;**
+- [x] **&lt;a-l&gt;**
+- [ ] **&lt;pageup&gt;, &lt;c-b&gt;**
+- [ ] **&lt;pagedown&gt;, &lt;c-f&gt;**
+- [ ] **&lt;c-u&gt;**
+- [ ] **&lt;c-d&gt;**
+- [ ] **;**, **&lt;semicolon&gt;**
+- [ ] **&lt;a-;&gt;**, **&lt;a-semicolon&gt;**
+- [ ] **&lt;a-:&gt;**
 
 ## Changes
 - [ ] **i**
@@ -51,62 +51,62 @@ Currently, `kak-insert-mode` is a glorified alias to `emacs-mode`. This will soo
 - [x] **d**
 - [x] **c**
 - [ ] **.**
-- [ ] **<a-d>**
-- [ ] **<a-c>**
+- [ ] **&lt;a-d&gt;**
+- [ ] **&lt;a-c&gt;**
 - [ ] **I**
 - [ ] **A**
 - [x] **o**
 - [x] **O**
-- [x] **<a-o>**
-- [x] **<a-O>**
+- [x] **&lt;a-o&gt;**
+- [x] **&lt;a-O&gt;**
 - [ ] **y**
 - [ ] **p**
 - [ ] **P**
-- [ ] **<a-p>**
-- [ ] **<a-P>**
+- [ ] **&lt;a-p&gt;**
+- [ ] **&lt;a-P&gt;**
 - [ ] **R**
-- [ ] **<a-R>**
+- [ ] **&lt;a-R&gt;**
 - [ ] **r**
-- [ ] **<a-j>**
-- [ ] **<a-J>**
-- [ ] **<a-_>**
-- [ ] **<+>**, **<plus>**
-- [ ] **<a-+>**, **<a-plus>**
-- [ ] **>**, **<gt>**
-- [ ] **<a-\>>**, **<a-gt>**
-- [ ] **<**, **<lt>**
-- [ ] **<a-<>**, **<a-lt>**
+- [ ] **&lt;a-j&gt;**
+- [ ] **&lt;a-J&gt;**
+- [ ] **&lt;a-_&gt;**
+- [ ] **&lt;+&gt;**, **&lt;plus&gt;**
+- [ ] **&lt;a-+&gt;**, **&lt;a-plus&gt;**
+- [ ] **&gt;**, **&lt;gt&gt;**
+- [ ] **&lt;a-\&gt;&gt;**, **&lt;a-gt&gt;**
+- [ ] **&lt;**, **&lt;lt&gt;**
+- [ ] **&lt;a-&lt;&gt;**, **&lt;a-lt&gt;**
 - [x] **u**
 - [x] **U**
-- [ ] **<c-j>**
-- [ ] **<c-k>**
-- [ ] **<a-u>**
-- [ ] **<a-U>**
+- [ ] **&lt;c-j&gt;**
+- [ ] **&lt;c-k&gt;**
+- [ ] **&lt;a-u&gt;**
+- [ ] **&lt;a-U&gt;**
 - [ ] **&**
-- [ ] **<a-&>**
+- [ ] **&lt;a-&&gt;**
 - [ ] **`**
 - [ ] **~**
-- [ ] **<a-`>**
+- [ ] **&lt;a-`&gt;**
 - [ ] **@**
-- [ ] **<a-@>**
+- [ ] **&lt;a-@&gt;**
 - [ ] **_**
-- [ ] **<a-)>**
-- [ ] **<a-(>**
+- [ ] **&lt;a-)&gt;**
+- [ ] **&lt;a-(&gt;**
 - [ ] **|**
-- [ ] **<a-|>**
+- [ ] **&lt;a-|&gt;**
 - [ ] **!**
 
 ## Searching
 - [ ] **/**
-- [ ] **<a-/>**
+- [ ] **&lt;a-/&gt;**
 - [ ] **?**
-- [ ] **<a-?>**
+- [ ] **&lt;a-?&gt;**
 - [ ] **n**
 - [ ] **N**
-- [ ] **<a-n>**
-- [ ] **<a-N>**
+- [ ] **&lt;a-n&gt;**
+- [ ] **&lt;a-N&gt;**
 - [ ] ******
-- [ ] **<a-******>**
+- [ ] **&lt;a-******&gt;**
 - [ ] **g**, **G**
     - [ ] **h**
     - [ ] **l**
@@ -120,7 +120,7 @@ Currently, `kak-insert-mode` is a glorified alias to `emacs-mode`. This will soo
     - [ ] **a**
     - [ ] **f**
     - [ ] **.**
-- [ ] **<a-!>**
+- [ ] **&lt;a-!&gt;**
 
 ## View mode
 - [ ] **v**, **V**
@@ -136,47 +136,47 @@ Currently, `kak-insert-mode` is a glorified alias to `emacs-mode`. This will soo
 ## Marks
 - [ ] **Z**
 - [ ] **z**
-- [ ] **<a-z>**, **<a-Z>**
+- [ ] **&lt;a-z&gt;**, **&lt;a-Z&gt;**
     - [ ] **a**
     - [ ] **u**
     - [ ] **i**
-    - [ ] **<**
-    - [ ] **>**
+    - [ ] **&lt;**
+    - [ ] **&gt;**
     - [ ] **+**
     - [ ] **-**
 
 ## Macros
 - [ ] **Q**
 - [ ] **q**
-- [ ] **<esc>**
+- [ ] **&lt;esc&gt;**
 
 ## Jump List
-- [ ] **<c-i>**
-- [ ] **<c-o>**
-- [ ] **<c-s>**
+- [ ] **&lt;c-i&gt;**
+- [ ] **&lt;c-o&gt;**
+- [ ] **&lt;c-s&gt;**
 
 ## Whole object selection
-- [ ] **<a-a>**
+- [ ] **&lt;a-a&gt;**
 - [ ] **[**
 - [ ] **]**
 - [ ] **{**
 - [ ] **}**
-- [ ] **<a-i>**
-- [ ] **<a-[>**
-- [ ] **<a-]>**
-- [ ] **<a-{>**
-- [ ] **<a-}>**
+- [ ] **&lt;a-i&gt;**
+- [ ] **&lt;a-[&gt;**
+- [ ] **&lt;a-]&gt;**
+- [ ] **&lt;a-{&gt;**
+- [ ] **&lt;a-}&gt;**
 
 ### Object types
 - [ ] **b**, **(**, **)**
 - [ ] **B**, **{**, **}**
 - [ ] **r**, **[**, **]**
-- [ ] **a**, **<**, **>**
+- [ ] **a**, **&lt;**, **&gt;**
 - [ ] **Q**, **"**
 - [ ] **q**, **'**
 - [ ] **g**, **`**
 - [ ] **w**
-- [ ] **<a-w>**
+- [ ] **&lt;a-w&gt;**
 - [ ] **s**
 - [ ] **p**
 - [ ] **␣**
@@ -184,4 +184,4 @@ Currently, `kak-insert-mode` is a glorified alias to `emacs-mode`. This will soo
 - [ ] **n**
 - [ ] **u**
 - [ ] **c**
-- [ ] **<a-;>**, **<a-semicolon>**
+- [ ] **&lt;a-;&gt;**, **&lt;a-semicolon&gt;**
