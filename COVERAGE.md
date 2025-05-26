@@ -32,7 +32,7 @@ Currently, `kak-insert-mode` is a glorified alias to `emacs-mode`. This will soo
 - [ ] **M**
 - [ ] **<a-m>**
 - [ ] **<a-M>**
-- [ ] **x**
+- [x] **x**
 - [ ] **<a-x>**
 - [ ] **%**, **<percent>**
 - [ ] **<a-h>**
@@ -55,10 +55,10 @@ Currently, `kak-insert-mode` is a glorified alias to `emacs-mode`. This will soo
 - [ ] **<a-c>**
 - [ ] **I**
 - [ ] **A**
-- [ ] **o**
-- [ ] **O**
-- [ ] **<a-o>**
-- [ ] **<a-O>**
+- [x] **o**
+- [x] **O**
+- [x] **<a-o>**
+- [x] **<a-O>**
 - [ ] **y**
 - [ ] **p**
 - [ ] **P**

@@ -42,6 +42,11 @@
 
   ("x" 'select-line)
 
+  ("o" 'open-line-below-and-insert)
+  ("O" 'open-line-above-and-insert)
+  ("M-o" 'open-line-below)
+  ("M-O" 'open-line-above)
+
   ("d" 'delete-selection)
   ("c" 'change-selection)
   ("u" 'undo)
@@ -85,7 +90,7 @@
 (defmethod region-end-using-global-mode ((global-mode kak-normal-mode)
                                          &optional (buffer (current-buffer)))
   (declare (ignore buffer))
-  (let ((result (copy-point (point-max (current-point) (mark-point (cursor-mark (current-point)))))))
+  (let ((result (copy-point (point-max (current-point) (mark-point (cursor-mark (current-point)))) :temporary)))
     (character-offset result 1)
     result))
 
@@ -185,17 +190,31 @@
   (delete-between-points start end)
   (kak-insert-mode))
 
-(defun line-boundary-exclusive (char1 char2)
-  (declare (ignore char1))
-  (eql char2 #\Newline))
-
-(defun line-boundary-inclusive (char1 char2)
-  (declare (ignore char2))
-  (eql char1 #\Newline))
-
-
 ;; Selecting full lines
 (define-command (select-line (:advice-classes kakoune-advice)) () ()
-  (move-till-boundary #'line-boundary-exclusive -1)
+  (line-start (current-point))
   (set-anchor)
-  (move-till-boundary #'line-boundary-inclusive 1))
+  (line-end (current-point)))
+
+(define-command (open-line-below (:advice-classes kakoune-advice)) () ()
+  (with-point ((p (current-point)))
+    (line-end p)
+    (insert-character p #\Newline)))
+
+(define-command (open-line-above (:advice-classes kakoune-advice)) () ()
+  (with-point ((p (current-point)))
+    (line-start p)
+    (insert-character p #\Newline)))
+
+(define-command (open-line-below-and-insert (:advice-classes kakoune-advice)) () ()
+  (line-end (current-point))
+  (insert-character (current-point) #\Newline)
+  (indent-line (current-point))
+  (kak-insert-mode))
+
+(define-command (open-line-above-and-insert (:advice-classes kakoune-advice)) () ()
+  (line-start (current-point))
+  (insert-character (current-point) #\Newline)
+  (line-offset (current-point) -1)
+  (indent-line (current-point))
+  (kak-insert-mode))
